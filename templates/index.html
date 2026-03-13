@@ -8,8 +8,9 @@
 
 body{
 margin:0;
-font-family:Arial;
+font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 background:#f3f3f3;
+color:#0f172a;
 }
 
 .navbar{
@@ -19,6 +20,9 @@ align-items:center;
 padding:15px 60px;
 background:white;
 box-shadow:0 2px 10px rgba(0,0,0,0.1);
+position:sticky;
+top:0;
+z-index:10;
 }
 
 .nav-left{
@@ -40,11 +44,35 @@ border-radius:22px;
 background:#e5e5e5;
 font-weight:bold;
 cursor:pointer;
+font-size:14px;
 }
 
 .nav-right{
 display:flex;
-gap:15px;
+align-items:center;
+gap:10px;
+}
+
+.user-label{
+font-size:13px;
+color:#6b7280;
+margin-right:6px;
+}
+
+.pill{
+display:inline-flex;
+align-items:center;
+gap:6px;
+padding:5px 12px;
+border-radius:999px;
+background:#e5e7eb;
+font-size:12px;
+color:#374151;
+}
+
+.pill-admin{
+background:#dbeafe;
+color:#1d4ed8;
 }
 
 .blend-btn{
@@ -54,10 +82,17 @@ border-radius:22px;
 background:#e5e5e5;
 cursor:pointer;
 font-weight:bold;
+font-size:14px;
+}
+
+.blend-btn-primary{
+background:linear-gradient(135deg,#2563eb,#1d4ed8);
+color:#f9fafb;
+box-shadow:0 10px 20px rgba(37,99,235,0.35);
 }
 
 .hero{
-padding:100px;
+padding:80px 60px;
 color:white;
 
 background:
@@ -70,17 +105,34 @@ background-position:center;
 
 .hero h1{
 font-size:40px;
+margin-bottom:10px;
+}
+
+.hero p{
+font-size:18px;
+opacity:0.9;
+}
+
+.hero-cta{
+margin-top:24px;
+display:flex;
+gap:12px;
+}
+
+.hero-cta a{
+text-decoration:none;
 }
 
 .brand-section{
 text-align:center;
-padding:50px;
+padding:50px 60px 30px;
 }
 
 .brands{
 display:flex;
 justify-content:center;
 gap:80px;
+flex-wrap:wrap;
 }
 
 .brand-item img{
@@ -91,7 +143,7 @@ height:60px;
 display:flex;
 justify-content:center;
 gap:60px;
-padding:70px;
+padding:40px 60px 70px;
 }
 
 .sell-left{
@@ -119,6 +171,8 @@ border:none;
 border-radius:25px;
 background:#2f6de1;
 color:white;
+cursor:pointer;
+font-weight:600;
 }
 
 .secondary-btn{
@@ -129,6 +183,83 @@ border-radius:25px;
 border:2px solid #2f6de1;
 color:#2f6de1;
 background:white;
+cursor:pointer;
+font-weight:600;
+}
+
+.listings-section{
+padding:40px 60px 50px;
+background:#0f172a;
+color:#e5e7eb;
+}
+
+.listings-header{
+display:flex;
+justify-content:space-between;
+align-items:flex-end;
+margin-bottom:16px;
+}
+
+.listings-header h2{
+margin:0;
+font-size:26px;
+}
+
+.listings-sub{
+font-size:13px;
+color:#9ca3af;
+}
+
+.listings-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+gap:18px;
+}
+
+.listing-card{
+background:radial-gradient(circle at top left,rgba(37,99,235,0.25),rgba(15,23,42,0.98));
+border-radius:16px;
+padding:14px 16px 12px;
+border:1px solid rgba(148,163,184,0.35);
+}
+
+.listing-top{
+display:flex;
+justify-content:space-between;
+align-items:baseline;
+margin-bottom:4px;
+}
+
+.listing-title{
+font-weight:600;
+}
+
+.listing-year{
+font-size:12px;
+color:#9ca3af;
+}
+
+.listing-price{
+font-weight:700;
+color:#a5b4fc;
+}
+
+.listing-desc{
+margin-top:6px;
+font-size:13px;
+color:#cbd5f5;
+}
+
+.listings-footer-link{
+margin-top:18px;
+text-align:right;
+font-size:13px;
+}
+
+.listings-footer-link a{
+color:#bfdbfe;
+text-decoration:none;
+font-weight:500;
 }
 
 </style>
@@ -146,13 +277,22 @@ background:white;
 </div>
 
 <div class="nav-right">
-
-<a href="/pythonlogin">
-<button class="blend-btn">Login / Signup</button>
-</a>
-
-<button class="blend-btn">Dealership</button>
-
+{% if session.get("user_id") %}
+  <span class="user-label">Hi, {{ session.username }}</span>
+  <span class="pill {% if session.role == 'admin' %}pill-admin{% endif %}">
+    {% if session.role == 'admin' %}Admin{% else %}Customer{% endif %}
+  </span>
+  <a href="{{ url_for('list_cars') }}">
+    <button class="blend-btn blend-btn-primary">View listings</button>
+  </a>
+  <a href="{{ url_for('logout') }}">
+    <button class="blend-btn">Logout</button>
+  </a>
+{% else %}
+  <a href="{{ url_for('pythonlogin') }}">
+    <button class="blend-btn blend-btn-primary">Login / Signup</button>
+  </a>
+{% endif %}
 </div>
 
 </div>
@@ -161,6 +301,17 @@ background:white;
 
 <h1>Connecting buyers and sellers</h1>
 <p>"One mile at a time"</p>
+
+<div class="hero-cta">
+  <a href="{{ url_for('list_cars') }}">
+    <button class="blend-btn blend-btn-primary">Browse listings</button>
+  </a>
+  {% if not session.get("user_id") %}
+  <a href="{{ url_for('pythonlogin') }}">
+    <button class="blend-btn">Sign up to sell</button>
+  </a>
+  {% endif %}
+</div>
 
 </div>
 
@@ -197,6 +348,44 @@ background:white;
 
 </div>
 
+</div>
+
+<div class="listings-section">
+  <div class="listings-header">
+    <div>
+      <h2>Featured listings</h2>
+      <div class="listings-sub">Fresh picks inspired by AutoTrader-style cards.</div>
+    </div>
+    <div class="listings-sub">
+      Powered by live data from our marketplace.
+    </div>
+  </div>
+
+  {% if cars %}
+  <div class="listings-grid">
+    {% for car in cars %}
+    <div class="listing-card">
+      <div class="listing-top">
+        <div>
+          <div class="listing-title">{{ car.make }} {{ car.model }}</div>
+          <div class="listing-year">{{ car.year }}</div>
+        </div>
+        <div class="listing-price">${{ "%.2f"|format(car.price) }}</div>
+      </div>
+      {% if car.description %}
+      <div class="listing-desc">{{ car.description }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  <div class="listings-footer-link">
+    <a href="{{ url_for('list_cars') }}">View all listings →</a>
+  </div>
+  {% else %}
+  <div class="listings-sub">
+    No cars yet. Be the first to list your ride.
+  </div>
+  {% endif %}
 </div>
 
 <div class="sell-section">
