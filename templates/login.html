@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Login</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:url("/static/Background3.jpg");
+background-size:cover;
+height:100vh;
+}
+
+.login-box{
+position:absolute;
+top:120px;
+right:120px;
+width:360px;
+background:white;
+box-shadow:0 10px 25px rgba(0,0,0,0.3);
+border-radius:6px;
+overflow:hidden;
+}
+
+.title{
+text-align:center;
+padding:20px;
+font-size:28px;
+font-weight:bold;
+border-bottom:1px solid #ddd;
+}
+
+.tabs{
+display:flex;
+}
+
+.tabs button{
+flex:1;
+padding:15px;
+border:none;
+background:white;
+cursor:pointer;
+font-weight:bold;
+}
+
+.form{
+padding:25px;
+}
+
+.input-group{
+display:flex;
+margin-bottom:20px;
+border:1px solid #ddd;
+}
+
+.input-group img{
+width:45px;
+background:#2f6de1;
+padding:10px;
+}
+
+.input-group input{
+flex:1;
+border:none;
+padding:12px;
+}
+
+.submit-btn{
+width:100%;
+background:#2f6de1;
+border:none;
+color:white;
+padding:15px;
+cursor:pointer;
+}
+
+</style>
+
+<script>
+
+function showLogin(){
+document.getElementById("loginForm").style.display="block"
+document.getElementById("registerForm").style.display="none"
+}
+
+function showRegister(){
+document.getElementById("loginForm").style.display="none"
+document.getElementById("registerForm").style.display="block"
+}
+
+</script>
+
+</head>
+
+<body>
+
+<div class="login-box">
+
+<div class="title">Login</div>
+
+<div class="tabs">
+<button onclick="showLogin()">Login</button>
+<button onclick="showRegister()">Register</button>
+</div>
+
+<form method="POST" id="loginForm" class="form">
+
+<input type="hidden" name="form_type" value="login">
+
+<div class="input-group">
+<img src="/static/Username.jpeg">
+<input type="text" name="username" placeholder="Username">
+</div>
+
+<div class="input-group">
+<img src="/static/Password.jpeg">
+<input type="password" name="password" placeholder="Password">
+</div>
+
+<button type="submit" class="submit-btn">Login</button>
+
+</form>
+
+<form method="POST" id="registerForm" class="form" style="display:none">
+
+<input type="hidden" name="form_type" value="register">
+
+<div class="input-group">
+<img src="/static/Username.jpeg">
+<input type="text" name="username" placeholder="Username">
+</div>
+
+<div class="input-group">
+<img src="/static/Password.jpeg">
+<input type="password" name="password" placeholder="Password">
+</div>
+
+<button type="submit" class="submit-btn">Register</button>
+
+</form>
+
+</div>
+
+</body>
+</html>

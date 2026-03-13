@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>AutoTrade</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#f3f3f3;
+}
+
+.navbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 60px;
+background:white;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.nav-left{
+display:flex;
+align-items:center;
+gap:25px;
+}
+
+.logo{
+width:60px;
+height:60px;
+border-radius:50%;
+}
+
+.nav-button{
+padding:10px 22px;
+border:none;
+border-radius:22px;
+background:#e5e5e5;
+font-weight:bold;
+cursor:pointer;
+}
+
+.nav-right{
+display:flex;
+gap:15px;
+}
+
+.blend-btn{
+padding:10px 20px;
+border:none;
+border-radius:22px;
+background:#e5e5e5;
+cursor:pointer;
+font-weight:bold;
+}
+
+.hero{
+padding:100px;
+color:white;
+
+background:
+linear-gradient(rgba(0,90,190,0.7),rgba(0,90,190,0.5)),
+url("/static/background1.jpg");
+
+background-size:cover;
+background-position:center;
+}
+
+.hero h1{
+font-size:40px;
+}
+
+.brand-section{
+text-align:center;
+padding:50px;
+}
+
+.brands{
+display:flex;
+justify-content:center;
+gap:80px;
+}
+
+.brand-item img{
+height:60px;
+}
+
+.sell-section{
+display:flex;
+justify-content:center;
+gap:60px;
+padding:70px;
+}
+
+.sell-left{
+width:400px;
+}
+
+.card{
+background:white;
+padding:30px;
+width:320px;
+border-radius:12px;
+box-shadow:0 6px 20px rgba(0,0,0,0.15);
+}
+
+.feature{
+margin:10px 0;
+color:#1e6bff;
+}
+
+.primary-btn{
+margin-top:20px;
+padding:15px;
+width:100%;
+border:none;
+border-radius:25px;
+background:#2f6de1;
+color:white;
+}
+
+.secondary-btn{
+margin-top:20px;
+padding:15px;
+width:100%;
+border-radius:25px;
+border:2px solid #2f6de1;
+color:#2f6de1;
+background:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="navbar">
+
+<div class="nav-left">
+<img src="/static/logo.png" class="logo">
+<button class="nav-button">Buy</button>
+<button class="nav-button">Sell</button>
+</div>
+
+<div class="nav-right">
+
+<a href="/pythonlogin">
+<button class="blend-btn">Login / Signup</button>
+</a>
+
+<button class="blend-btn">Dealership</button>
+
+</div>
+
+</div>
+
+<div class="hero">
+
+<h1>Connecting buyers and sellers</h1>
+<p>"One mile at a time"</p>
+
+</div>
+
+<div class="brand-section">
+
+<h2>The Best of the Best</h2>
+
+<div class="brands">
+
+<div class="brand-item">
+<img src="/static/Brand1.png">
+<p>Toyota</p>
+</div>
+
+<div class="brand-item">
+<img src="/static/Brand2.jpeg">
+<p>Hyundai</p>
+</div>
+
+<div class="brand-item">
+<img src="/static/Brand3.jpg">
+<p>Honda</p>
+</div>
+
+<div class="brand-item">
+<img src="/static/Brand4.jpg">
+<p>Ford</p>
+</div>
+
+<div class="brand-item">
+<img src="/static/Brand5.jpg">
+<p>Cadillac</p>
+</div>
+
+</div>
+
+</div>
+
+<div class="sell-section">
+
+<div class="sell-left">
+<h2>Time for an upgrade?</h2>
+<img src="/static/oldcar.png" width="100%">
+</div>
+
+<div class="card">
+
+<h3>The quickest sale (to a verified dealer)</h3>
+
+<div class="feature">Get a competitive bid in minutes</div>
+<div class="feature">Minimal paperwork for you</div>
+<div class="feature">Skip the test drives</div>
+<div class="feature">Walk away with payment today</div>
+
+<button class="primary-btn">Get your offer now</button>
+
+</div>
+
+<div class="card">
+
+<h3>The highest price (on our open marketplace)</h3>
+
+<div class="feature">You are the boss of your listing</div>
+<div class="feature">Reach hundreds of thousands daily</div>
+<div class="feature">Full transparency for both sides</div>
+<div class="feature">Connect directly to secure financing partners</div>
+
+<button class="secondary-btn">List your ad</button>
+
+</div>
+
+</div>
+
+</body>
+</html>
