@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ car.make }} {{ car.model }} · Details</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #1e293b, #020617);
+            color: #e5e7eb;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .shell {
+            margin-top: 40px;
+            width: 900px;
+            background: rgba(15, 23, 42, 0.96);
+            border-radius: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.9);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+        }
+
+        .image-pane {
+            position: relative;
+            background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.4), #020617);
+            padding: 24px;
+        }
+
+        .image-pane img {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.85);
+        }
+
+        .badge {
+            position: absolute;
+            top: 20px;
+            left: 24px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.6);
+        }
+
+        .content {
+            padding: 24px 26px 22px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        .price-row {
+            margin-top: 18px;
+            font-size: 26px;
+            font-weight: 700;
+            color: #a5b4fc;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 18px;
+            font-size: 13px;
+        }
+
+        .meta-item {
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(51, 65, 85, 0.9);
+        }
+
+        .meta-label {
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 2px;
+        }
+
+        .meta-value {
+            font-weight: 600;
+        }
+
+        .description {
+            margin-top: 18px;
+            font-size: 14px;
+            color: #d1d5db;
+            line-height: 1.5;
+        }
+
+        .footer-row {
+            margin-top: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-left {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .role-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+        }
+
+        .role-pill.admin {
+            border-color: #60a5fa;
+            color: #bfdbfe;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            border-radius: 999px;
+            border: none;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #475569;
+            color: #e5e7eb;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #f9fafb;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.55);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell">
+        <div class="image-pane">
+            <div class="badge">Listing details</div>
+            {% set img = 'toyota.jpg' %}
+            {% if car.make|lower == 'ford' %}
+              {% set img = 'ford.jpg' %}
+            {% elif car.make|lower == 'tesla' %}
+              {% set img = 'tesla.jpg' %}
+            {% elif car.make|lower == 'bmw' %}
+              {% set img = 'bmw.jpg' %}
+            {% endif %}
+            <img src="{{ url_for('car_image', filename=img) }}" alt="{{ car.make }} {{ car.model }}">
+        </div>
+        <div class="content">
+            <div class="title">{{ car.make }} {{ car.model }}</div>
+            <div class="subtitle">{{ car.year }}</div>
+
+            <div class="price-row">
+                ${{ "%.2f"|format(car.price) }}
+            </div>
+
+            <div class="meta-grid">
+                <div class="meta-item">
+                    <div class="meta-label">Make</div>
+                    <div class="meta-value">{{ car.make }}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Model</div>
+                    <div class="meta-value">{{ car.model }}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Year</div>
+                    <div class="meta-value">{{ car.year }}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Price</div>
+                    <div class="meta-value">${{ "%.2f"|format(car.price) }}</div>
+                </div>
+            </div>
+
+            {% if car.description %}
+            <div class="description">
+                {{ car.description }}
+            </div>
+            {% endif %}
+
+            <div class="footer-row">
+                <div class="footer-left">
+                    Viewing as
+                    <span class="role-pill {% if role == 'admin' %}admin{% endif %}">
+                        {% if role == 'admin' %}Admin{% else %}Customer{% endif %}
+                    </span>
+                </div>
+                <div class="buttons">
+                    <form action="{{ url_for('list_cars') }}" method="get">
+                        <button type="submit" class="btn btn-outline">Back to listings</button>
+                    </form>
+                    <form action="{{ url_for('home') }}" method="get">
+                        <button type="submit" class="btn btn-primary">Back to home</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+

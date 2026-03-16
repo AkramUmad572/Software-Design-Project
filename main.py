@@ -6,6 +6,7 @@ from flask import (
     url_for,
     session,
     flash,
+    send_from_directory,
 )
 import os
 import sqlite3
@@ -68,6 +69,12 @@ def init_db():
                 sample_cars,
             )
             conn.commit()
+
+
+@app.route("/images/<path:filename>")
+def car_image(filename):
+    images_dir = os.path.join(BASE_DIR, "images")
+    return send_from_directory(images_dir, filename)
 
 
 def login_required(view):
@@ -159,6 +166,17 @@ def list_cars():
     with get_db() as conn:
         cars = conn.execute("SELECT * FROM cars").fetchall()
     return render_template("cars.html", cars=cars, role=session.get("role"))
+
+
+@app.route("/cars/<int:car_id>")
+@login_required
+def car_detail(car_id):
+    with get_db() as conn:
+        car = conn.execute("SELECT * FROM cars WHERE id = ?", (car_id,)).fetchone()
+        if not car:
+            flash("Car not found.", "error")
+            return redirect(url_for("list_cars"))
+    return render_template("car_detail.html", car=car, role=session.get("role"))
 
 
 @app.route("/cars/new", methods=["GET", "POST"])

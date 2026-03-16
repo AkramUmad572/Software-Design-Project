@@ -221,8 +221,26 @@
 
         {% if cars %}
         <div class="grid">
-            {% for car in cars %}
+            {% for car in cars[:4] %}
             <div class="card">
+                {% set idx = loop.index0 %}
+                {% if idx == 0 %}
+                <a href="{{ url_for('car_detail', car_id=car.id) }}">
+                    <img src="{{ url_for('car_image', filename='toyota.jpg') }}" style="width:100%;border-radius:12px;margin-bottom:8px;">
+                </a>
+                {% elif idx == 1 %}
+                <a href="{{ url_for('car_detail', car_id=car.id) }}">
+                    <img src="{{ url_for('car_image', filename='ford.jpg') }}" style="width:100%;border-radius:12px;margin-bottom:8px;">
+                </a>
+                {% elif idx == 2 %}
+                <a href="{{ url_for('car_detail', car_id=car.id) }}">
+                    <img src="{{ url_for('car_image', filename='tesla.jpg') }}" style="width:100%;border-radius:12px;margin-bottom:8px;">
+                </a>
+                {% elif idx == 3 %}
+                <a href="{{ url_for('car_detail', car_id=car.id) }}">
+                    <img src="{{ url_for('car_image', filename='bmw.jpg') }}" style="width:100%;border-radius:12px;margin-bottom:8px;">
+                </a>
+                {% endif %}
                 <div class="card-header">
                     <div>
                         <div class="car-title">{{ car.make }} {{ car.model }}</div>
