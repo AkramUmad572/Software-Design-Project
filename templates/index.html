@@ -115,6 +115,15 @@
         opacity: 0.9;
       }
 
+      .hero-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .hero p {
+        max-width: 52ch;
+      }
+
       .hero-cta {
         margin-top: 24px;
         display: flex;
@@ -190,9 +199,23 @@
       }
 
       .listings-section {
-        padding: 40px 60px 50px;
+        padding: 40px 60px 60px;
         background: #0f172a;
         color: #e5e7eb;
+      }
+
+      .listings-wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .listing-card a {
+        display: block;
+      }
+
+      .listing-card img {
+        object-fit: cover;
+        aspect-ratio: 16 / 9;
       }
 
       .listings-header {
@@ -299,54 +322,26 @@
     </div>
 
     <div class="hero">
-      <h1>Connecting buyers and sellers</h1>
-      <p>"One mile at a time"</p>
+      <div class="hero-inner">
+        <h1>Find your next car</h1>
+        <p>Browse verified listings and click into a vehicle to see full details.</p>
 
-      <div class="hero-cta">
-        <a href="{{ url_for('list_cars') }}">
-          <button class="blend-btn blend-btn-primary">Browse listings</button>
-        </a>
-      </div>
-    </div>
-
-    <div class="brand-section">
-      <h2>The Best of the Best</h2>
-
-      <div class="brands">
-        <div class="brand-item">
-          <img src="/static/Brand1.png" />
-          <p>Toyota</p>
-        </div>
-
-        <div class="brand-item">
-          <img src="/static/Brand2.jpeg" />
-          <p>Hyundai</p>
-        </div>
-
-        <div class="brand-item">
-          <img src="/static/Brand3.jpg" />
-          <p>Honda</p>
-        </div>
-
-        <div class="brand-item">
-          <img src="/static/Brand4.jpg" />
-          <p>Ford</p>
-        </div>
-
-        <div class="brand-item">
-          <img src="/static/Brand5.jpg" />
-          <p>Cadillac</p>
+        <div class="hero-cta">
+          <a href="{{ url_for('list_cars') }}">
+            <button class="blend-btn blend-btn-primary">Browse listings</button>
+          </a>
         </div>
       </div>
     </div>
+
+    <!-- Brand strip removed for iteration 2 landing cleanup -->
 
     <div class="listings-section">
+      <div class="listings-wrap">
       <div class="listings-header">
         <div>
           <h2>Featured listings</h2>
-          <div class="listings-sub">
-            Fresh picks inspired by AutoTrader-style cards.
-          </div>
+          <div class="listings-sub">A quick look at what’s available right now.</div>
         </div>
         <div class="listings-sub">
           Powered by live data from our marketplace.
@@ -357,35 +352,12 @@
       <div class="listings-grid">
         {% for car in cars[:4] %}
         <div class="listing-card">
-          {% set idx = loop.index0 %} {% if idx == 0 %}
           <a href="{{ url_for('car_detail', car_id=car.id) }}">
             <img
-              src="{{ url_for('car_image', filename='toyota.jpg') }}"
+              src="{{ url_for('car_image', filename=(car.image_filename or 'toyota.jpg')) }}"
               style="width: 100%; border-radius: 12px; margin-bottom: 8px"
             />
           </a>
-          {% elif idx == 1 %}
-          <a href="{{ url_for('car_detail', car_id=car.id) }}">
-            <img
-              src="{{ url_for('car_image', filename='ford.jpg') }}"
-              style="width: 100%; border-radius: 12px; margin-bottom: 8px"
-            />
-          </a>
-          {% elif idx == 2 %}
-          <a href="{{ url_for('car_detail', car_id=car.id) }}">
-            <img
-              src="{{ url_for('car_image', filename='tesla.jpg') }}"
-              style="width: 100%; border-radius: 12px; margin-bottom: 8px"
-            />
-          </a>
-          {% elif idx == 3 %}
-          <a href="{{ url_for('car_detail', car_id=car.id) }}">
-            <img
-              src="{{ url_for('car_image', filename='bmw.jpg') }}"
-              style="width: 100%; border-radius: 12px; margin-bottom: 8px"
-            />
-          </a>
-          {% endif %}
           <div class="listing-top">
             <div>
               <div class="listing-title">{{ car.make }} {{ car.model }}</div>
@@ -407,6 +379,7 @@
         No cars yet. Be the first to list your ride.
       </div>
       {% endif %}
+      </div>
     </div>
 
   </body>

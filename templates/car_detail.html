@@ -168,15 +168,7 @@
     <div class="shell">
         <div class="image-pane">
             <div class="badge">Listing details</div>
-            {% set img = 'toyota.jpg' %}
-            {% if car.make|lower == 'ford' %}
-              {% set img = 'ford.jpg' %}
-            {% elif car.make|lower == 'tesla' %}
-              {% set img = 'tesla.jpg' %}
-            {% elif car.make|lower == 'bmw' %}
-              {% set img = 'bmw.jpg' %}
-            {% endif %}
-            <img src="{{ url_for('car_image', filename=img) }}" alt="{{ car.make }} {{ car.model }}">
+            <img src="{{ url_for('car_image', filename=(car.image_filename or 'toyota.jpg')) }}" alt="{{ car.make }} {{ car.model }}">
         </div>
         <div class="content">
             <div class="title">{{ car.make }} {{ car.model }}</div>
