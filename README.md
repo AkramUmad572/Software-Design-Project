@@ -1,106 +1,38 @@
-# MotorMatch
-
 ## Overview
 
-MotorMatch is a prototype vehicle listings platform developed as part of a course project. The application allows users to browse, search, and filter vehicle listings, while administrators can manage listings through update and deletion features.
-
-This project follows an Agile development process and is currently in Iteration 2, with continued improvements, testing, and feature development.
-
----
-
-## Features Implemented
-
-* Browse vehicle listings
-* View detailed vehicle information
-* Search vehicles
-* Filter vehicles
-* User authentication (login/logout)
-* Role-based access control (admin vs user)
-* Admin functionality (update and delete listings)
-
----
-
-## Features In Progress
-
-* Admin moderation
-* Messaging system
-* Manage multiple listings
-* Inspection status tracking
-
----
-
-## Planned Features
-
-* Rating system
-* Price estimation tool
-
----
+MotorMatch is a prototype vehicle listings platform developed as part of our course project.
 
 ## How to Run
+Clone the repository: git clone [PASTE REPO LINK]
 
-### Option 1: Using IntelliJ (Recommended)
+.\scripts\run.ps1
+```
 
-1. Clone the repository:
+This script creates a virtual environment (`venv`), installs dependencies, and starts the server.
 
-   ```
-   git clone https://github.com/<your-repo-link>
-   ```
-2. Open the project in IntelliJ
-3. Configure a Python interpreter if needed
-4. Install dependencies:
+## Quick start (Makefile)
 
-   ```
-   pip install flask
-   ```
-5. Run `main.py`
+If you have `make` installed (Git Bash / WSL / MSYS2):
 
----
+```bash
+make install
+make run
+```
 
-### Option 2: Using Command Line
+## Iteration 2
+Install deps (includes pytest), then run:
 
-1. Clone the repository:
+```bash
+pytest
+```
 
-   ```
-   git clone https://github.com/<your-repo-link>
-   ```
-2. Navigate to the project folder:
+Note: `tests/test_password_strength.py` is intentionally written for a *future* feature.
+Right now it should fail (“Red”) because `motormatch/auth_rules.py::password_is_strong` is not implemented yet.
 
-   ```
-   cd Project
-   ```
-3. Install dependencies:
+## Features implemented (Iteration 1 + some Iteration 2)
 
-   ```
-   pip install flask
-   ```
-4. Run the application:
-
-   ```
-   python main.py
-   ```
-
----
-
-## Project Structure
-
-* `main.py` → Main application file
-* `templates/` → HTML templates
-* `static/` → CSS, JS, and assets
-* `images/` → Vehicle images
-
----
-
-## Notes
-
-* This project is an MVP and still under development
-* Some advanced features are not fully implemented yet
-* Developed as part of CSCI 2040U using Agile methodology
-
----
-
-## Contributors
-
-* Qudsia Fawad
-* Akram Umad
-* Andy
-
+- Browse vehicle catalog (with images)
+- Click a listing image to view details
+- Login / Register with roles (customer/admin)
+- Admin-only add/edit/delete listings
+yea
