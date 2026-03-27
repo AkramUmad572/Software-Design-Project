@@ -1,0 +1,10 @@
+.DS_Store
+__pycache__/
+*.pyc
+
+# Local database / dev artifacts
+database.db
+
+# Virtual environments
+venv/
+.venv/
