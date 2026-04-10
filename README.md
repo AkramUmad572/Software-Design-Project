@@ -1,39 +1,164 @@
+# MotorMatch  
+CSCI 2040U – Software Design and Analysis  
+Team: Qudsia Fawad, Andy, Emma, Umad, Adebayo  
+
+---
+
 ## Overview
+MotorMatch is a vehicle catalog application that allows users to browse and search for cars, while admins can manage listings.
 
-MotorMatch is a prototype vehicle listings platform developed as part of our course project.
+The system supports user account creation and login, viewing vehicle listings, and administrative actions such as adding, updating, and removing vehicles.
 
-How to Run
-Clone the repository: git clone [PASTE REPO LINK]
+Additional features such as a wishlist system, reviews, an admin dashboard, and a messaging system are being integrated to enhance user interaction.
 
-.\scripts\run.ps1
+---
 
-````
+## Setup and Running the Application
 
-This script creates a virtual environment (`venv`), installs dependencies, and starts the server.
+### Clone the Repository
+git clone <PASTE REPO LINK>  
+cd MotorMatch  
 
-## Quick start (Makefile)
+---
 
-If you have `make` installed (Git Bash / WSL / MSYS2):
+### Run Using PowerShell Script
+.\scripts\run.ps1  
 
-```bash
-make install
-make run
-````
+This script:
+- creates a virtual environment  
+- installs dependencies  
+- starts the server  
 
-## Iteration 2
+---
 
-Install deps (includes pytest), then run:
+### Alternative: Using Makefile
+make install  
+make run  
 
-```bash
-pytest
-```
+---
 
-Note: `tests/test_password_strength.py` is intentionally written for a _future_ feature.
-Right now it should fail (“Red”) because `motormatch/auth_rules.py::password_is_strong` is not implemented yet.
+### Running Tests
+pytest  
 
-## Features implemented (Iteration 1 + some Iteration 2)
+---
 
-- Browse vehicle catalog (with images)
-- Click a listing image to view details
-- Login / Register with roles (customer/admin)
-- Admin-only add/edit/delete listings
+## Developer Documentation
+
+### Project Structure Overview
+The project is organized into components that handle different responsibilities:
+
+- Routes / Controllers  
+  Handle application flow and user requests  
+
+- Database / Data Layer  
+  Stores and manages vehicle and user data  
+
+- Core Logic  
+  Handles filtering, validation, and processing  
+
+---
+
+### Key System Features
+- User authentication with role-based access (user/admin)  
+- Vehicle listing management  
+- Search and filtering functionality  
+- Input validation  
+
+---
+
+## User Documentation
+
+### Step 1: Launch the Application
+Run the project using the instructions in the setup section.
+
+![Launch Application](./screenshots/launch.png)
+
+---
+
+### Step 2: Create an Account / Log In
+- New users can register for an account  
+- Existing users can log in  
+
+![Login / Register](./screenshots/login.png)
+
+---
+
+### Browsing Vehicle Listings
+- Users can view all available vehicles  
+- Listings include key vehicle details  
+
+![Browse Listings](./screenshots/browse.png)
+
+---
+
+### Viewing Listing Details
+- Users can click on a listing to view more information  
+
+![Listing Details](./screenshots/details.png)
+
+---
+
+### Searching for Vehicles
+- Users can search for vehicles using the search feature  
+
+![Search](./screenshots/search.png)
+
+---
+
+### Filtering Vehicles
+- Users can apply filters to narrow results  
+
+![Filter](./screenshots/filter.png)
+
+---
+
+## Admin Functionality
+
+### Adding a Vehicle
+- Admins can create new listings  
+
+![Add Vehicle](./screenshots/add.png)
+
+---
+
+### Updating a Vehicle
+- Admins can edit existing listings  
+
+![Update Vehicle](./screenshots/update.png)
+
+---
+
+### Deleting a Vehicle
+- Admins can remove listings  
+
+![Delete Vehicle](./screenshots/delete.png)
+
+---
+
+## Additional Features
+
+### Wishlist
+- Users can save vehicles they are interested in  
+
+![Wishlist](./screenshots/wishlist.png)
+
+---
+
+### Reviews
+- Users can leave feedback on vehicles  
+
+![Reviews](./screenshots/reviews.png)
+
+---
+
+### Messaging System
+- Users can interact through messaging features  
+
+![Messaging](./screenshots/messaging.png)
+
+---
+
+### Admin Dashboard
+- Admins can manage the system from a central interface  
+
+![Dashboard](./screenshots/dashboard.png)
