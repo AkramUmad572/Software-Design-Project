@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #0f172a;
+            color: #e5e7eb;
+        }
+
+        .shell {
+            max-width: 1100px;
+            margin: 32px auto;
+            padding: 0 20px 48px;
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .title {
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .btn {
+            border-radius: 999px;
+            border: none;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #475569;
+            color: #e5e7eb;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #f9fafb;
+            box-shadow: 0 12px 25px rgba(37, 99, 235, 0.45);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.25), rgba(15, 23, 42, 0.98));
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #a5b4fc;
+        }
+
+        .stat-detail {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* Section panels */
+        .panel {
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #64748b;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(71, 85, 105, 0.5);
+        }
+
+        td {
+            padding: 10px 12px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(71, 85, 105, 0.25);
+        }
+
+        tr:hover td {
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .role-badge.admin {
+            background: rgba(37, 99, 235, 0.2);
+            color: #93bbfd;
+            border: 1px solid rgba(37, 99, 235, 0.4);
+        }
+
+        .role-badge.customer {
+            background: rgba(148, 163, 184, 0.15);
+            color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .stars { color: #fbbf24; letter-spacing: 1px; font-size: 13px; }
+
+        .text-muted { color: #64748b; }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .two-col { grid-template-columns: 1fr; }
+        }
+
+        .rank-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.25);
+            font-size: 12px;
+            font-weight: 700;
+            color: #a5b4fc;
+            margin-right: 6px;
+        }
+
+        .empty-panel {
+            text-align: center;
+            color: #64748b;
+            padding: 24px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell">
+        <div class="top-bar">
+            <div>
+                <div class="title">Admin Dashboard</div>
+                <div class="subtitle">Overview of your marketplace</div>
+                <div class="button-row">
+                    <form action="{{ url_for('list_cars') }}" method="get">
+                        <button type="submit" class="btn btn-outline">Manage listings</button>
+                    </form>
+                    <form action="{{ url_for('home') }}" method="get">
+                        <button type="submit" class="btn btn-outline">Home</button>
+                    </form>
+                    <form action="{{ url_for('logout') }}" method="get">
+                        <button type="submit" class="btn btn-outline">Log out</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Listings</div>
+                <div class="stat-value">{{ total_cars }}</div>
+                <div class="stat-detail">{{ approved_cars }} approved · {{ hidden_cars }} hidden</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value">{{ total_users }}</div>
+                <div class="stat-detail">{{ admin_count }} admin{{ 's' if admin_count != 1 }} · {{ customer_count }} customer{{ 's' if customer_count != 1 }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Reviews</div>
+                <div class="stat-value">{{ total_reviews }}</div>
+                <div class="stat-detail">Across all listings</div>
+            </div>
+        </div>
+
+        <!-- Two column: Top Rated + Most Wishlisted -->
+        <div class="two-col">
+            <div class="panel">
+                <div class="panel-title">Top Rated Cars</div>
+                {% if top_rated %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Car</th>
+                            <th>Avg Rating</th>
+                            <th>Reviews</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for car in top_rated %}
+                        <tr>
+                            <td><span class="rank-num">{{ loop.index }}</span></td>
+                            <td>
+                                <a href="{{ url_for('car_detail', car_id=car.id) }}" style="color:#bfdbfe;text-decoration:none;">
+                                    {{ car.make }} {{ car.model }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="stars">
+                                    {% for i in range(1, 6) %}{% if car.avg_rating >= i %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}
+                                </span>
+                                <span style="margin-left:4px;font-size:12px;color:#fbbf24;">{{ "%.1f"|format(car.avg_rating) }}</span>
+                            </td>
+                            <td class="text-muted">{{ car.review_count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-panel">No reviews yet.</div>
+                {% endif %}
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">Most Wishlisted</div>
+                {% if wishlist_stats %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Car</th>
+                            <th>Wishlists</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for car in wishlist_stats %}
+                        <tr>
+                            <td><span class="rank-num">{{ loop.index }}</span></td>
+                            <td>
+                                <a href="{{ url_for('car_detail', car_id=car.id) }}" style="color:#bfdbfe;text-decoration:none;">
+                                    {{ car.make }} {{ car.model }}
+                                </a>
+                            </td>
+                            <td>{{ car.wish_count }} user{{ 's' if car.wish_count != 1 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-panel">No wishlist activity yet.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- All Users -->
+        <div class="panel">
+            <div class="panel-title">All Users ({{ total_users }})</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td class="text-muted">{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>
+                            <span class="role-badge {{ user.role }}">{{ user.role }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recent Reviews -->
+        <div class="panel">
+            <div class="panel-title">Recent Reviews</div>
+            {% if recent_reviews %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Car</th>
+                        <th>Rating</th>
+                        <th>Comment</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in recent_reviews %}
+                    <tr>
+                        <td>{{ review.username }}</td>
+                        <td>
+                            <a href="{{ url_for('car_detail', car_id=review.car_id) }}" style="color:#bfdbfe;text-decoration:none;">
+                                {{ review.make }} {{ review.model }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="stars">
+                                {% for i in range(1, 6) %}{% if review.rating >= i %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}
+                            </span>
+                        </td>
+                        <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                            {{ review.comment or '—' }}
+                        </td>
+                        <td class="text-muted" style="white-space:nowrap;">{{ review.created_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-panel">No reviews have been submitted yet.</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>

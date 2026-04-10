@@ -7,9 +7,11 @@ from flask import (
     session,
     flash,
     send_from_directory,
+    jsonify,
 )
 import os
 import sqlite3
+from datetime import datetime
 from functools import wraps
 
 app = Flask(__name__)
@@ -48,6 +50,33 @@ def init_db():
                 description TEXT,
                 status TEXT NOT NULL DEFAULT 'approved' CHECK (status IN ('approved','hidden')),
                 image_filename TEXT
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS reviews (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                car_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+                comment TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS wishlist (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                car_id INTEGER NOT NULL,
+                added_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE,
+                UNIQUE(user_id, car_id)
             )
             """
         )
@@ -248,7 +277,50 @@ def car_detail(car_id):
         if not car:
             flash("Car not found.", "error")
             return redirect(url_for("list_cars"))
-    return render_template("car_detail.html", car=car, role=session.get("role"))
+
+        reviews = conn.execute(
+            """SELECT r.*, u.username FROM reviews r
+               JOIN users u ON r.user_id = u.id
+               WHERE r.car_id = ? ORDER BY r.created_at DESC""",
+            (car_id,),
+        ).fetchall()
+
+        avg_row = conn.execute(
+            "SELECT AVG(rating) as avg_rating, COUNT(*) as count FROM reviews WHERE car_id = ?",
+            (car_id,),
+        ).fetchone()
+        avg_rating = round(avg_row["avg_rating"], 1) if avg_row["avg_rating"] else None
+        review_count = avg_row["count"]
+
+        edit_review = None
+        edit_review_id = (request.args.get("edit_review") or "").strip()
+        if edit_review_id:
+            if session.get("role") == "admin":
+                edit_review = conn.execute(
+                    "SELECT * FROM reviews WHERE id = ? AND car_id = ?",
+                    (int(edit_review_id), car_id),
+                ).fetchone()
+            else:
+                edit_review = conn.execute(
+                    "SELECT * FROM reviews WHERE id = ? AND car_id = ? AND user_id = ?",
+                    (int(edit_review_id), car_id, session["user_id"]),
+                ).fetchone()
+
+        in_wishlist = conn.execute(
+            "SELECT 1 FROM wishlist WHERE user_id = ? AND car_id = ?",
+            (session["user_id"], car_id),
+        ).fetchone() is not None
+
+    return render_template(
+        "car_detail.html",
+        car=car,
+        role=session.get("role"),
+        reviews=reviews,
+        avg_rating=avg_rating,
+        review_count=review_count,
+        edit_review=edit_review,
+        in_wishlist=in_wishlist,
+    )
 
 
 @app.route("/cars/<int:car_id>/moderate", methods=["POST"])
@@ -332,6 +404,182 @@ def delete_car(car_id):
         conn.commit()
     flash("Car listing deleted.", "success")
     return redirect(url_for("list_cars"))
+
+
+@app.route("/cars/<int:car_id>/review", methods=["POST"])
+@login_required
+def submit_review(car_id):
+    rating_raw = (request.form.get("rating", "") or "").strip()
+    comment = (request.form.get("comment", "") or "").strip()
+    review_id_raw = (request.form.get("review_id", "") or "").strip()
+
+    try:
+        rating = int(rating_raw)
+    except ValueError:
+        rating = None
+
+    if rating is None or rating < 1 or rating > 5:
+        flash("Please select a rating between 1 and 5.", "error")
+        return redirect(url_for("car_detail", car_id=car_id))
+
+    with get_db() as conn:
+        if review_id_raw:
+            # Edit an existing review (only owner; admin can edit too).
+            if session.get("role") == "admin":
+                updated = conn.execute(
+                    "UPDATE reviews SET rating = ?, comment = ?, created_at = datetime('now') WHERE id = ? AND car_id = ?",
+                    (rating, comment, int(review_id_raw), car_id),
+                ).rowcount
+            else:
+                updated = conn.execute(
+                    "UPDATE reviews SET rating = ?, comment = ?, created_at = datetime('now') WHERE id = ? AND car_id = ? AND user_id = ?",
+                    (rating, comment, int(review_id_raw), car_id, session["user_id"]),
+                ).rowcount
+            conn.commit()
+            if updated:
+                flash("Your review has been updated.", "success")
+            else:
+                flash("Could not update that review.", "error")
+            return redirect(url_for("car_detail", car_id=car_id))
+
+        # Otherwise create a new review (allows multiple per user).
+        else:
+            conn.execute(
+                "INSERT INTO reviews (car_id, user_id, rating, comment) VALUES (?, ?, ?, ?)",
+                (car_id, session["user_id"], rating, comment),
+            )
+            flash("Your review has been submitted.", "success")
+        conn.commit()
+
+    return redirect(url_for("car_detail", car_id=car_id))
+
+
+@app.route("/cars/<int:car_id>/review/delete", methods=["POST"])
+@login_required
+def delete_review(car_id):
+    with get_db() as conn:
+        review_id_raw = (request.form.get("review_id") or "").strip()
+        if not review_id_raw:
+            flash("Missing review id.", "error")
+            return redirect(url_for("car_detail", car_id=car_id))
+
+        if session.get("role") == "admin":
+            conn.execute(
+                "DELETE FROM reviews WHERE id = ? AND car_id = ?",
+                (int(review_id_raw), car_id),
+            )
+        else:
+            conn.execute(
+                "DELETE FROM reviews WHERE id = ? AND car_id = ? AND user_id = ?",
+                (int(review_id_raw), car_id, session["user_id"]),
+            )
+        conn.commit()
+    flash("Review deleted.", "success")
+    return redirect(url_for("car_detail", car_id=car_id))
+
+
+@app.route("/wishlist/toggle/<int:car_id>", methods=["POST"])
+@login_required
+def toggle_wishlist(car_id):
+    with get_db() as conn:
+        existing = conn.execute(
+            "SELECT id FROM wishlist WHERE user_id = ? AND car_id = ?",
+            (session["user_id"], car_id),
+        ).fetchone()
+        if existing:
+            conn.execute("DELETE FROM wishlist WHERE id = ?", (existing["id"],))
+            flash("Removed from your wishlist.", "success")
+        else:
+            conn.execute(
+                "INSERT INTO wishlist (user_id, car_id) VALUES (?, ?)",
+                (session["user_id"], car_id),
+            )
+            flash("Added to your wishlist!", "success")
+        conn.commit()
+
+    referrer = request.form.get("next") or request.referrer
+    return redirect(referrer or url_for("list_cars"))
+
+
+@app.route("/wishlist")
+@login_required
+def view_wishlist():
+    with get_db() as conn:
+        cars = conn.execute(
+            """SELECT c.*, w.added_at FROM wishlist w
+               JOIN cars c ON w.car_id = c.id
+               WHERE w.user_id = ?
+               ORDER BY w.added_at DESC""",
+            (session["user_id"],),
+        ).fetchall()
+    return render_template("wishlist.html", cars=cars, role=session.get("role"))
+
+
+@app.route("/admin/dashboard")
+@admin_required
+def admin_dashboard():
+    with get_db() as conn:
+        total_cars = conn.execute("SELECT COUNT(*) as c FROM cars").fetchone()["c"]
+        approved_cars = conn.execute(
+            "SELECT COUNT(*) as c FROM cars WHERE status = 'approved'"
+        ).fetchone()["c"]
+        hidden_cars = conn.execute(
+            "SELECT COUNT(*) as c FROM cars WHERE status = 'hidden'"
+        ).fetchone()["c"]
+
+        total_users = conn.execute("SELECT COUNT(*) as c FROM users").fetchone()["c"]
+        admin_count = conn.execute(
+            "SELECT COUNT(*) as c FROM users WHERE role = 'admin'"
+        ).fetchone()["c"]
+        customer_count = conn.execute(
+            "SELECT COUNT(*) as c FROM users WHERE role = 'customer'"
+        ).fetchone()["c"]
+
+        total_reviews = conn.execute("SELECT COUNT(*) as c FROM reviews").fetchone()["c"]
+
+        users = conn.execute(
+            "SELECT id, username, role FROM users ORDER BY id DESC"
+        ).fetchall()
+
+        recent_reviews = conn.execute(
+            """SELECT r.*, u.username, c.make, c.model
+               FROM reviews r
+               JOIN users u ON r.user_id = u.id
+               JOIN cars c ON r.car_id = c.id
+               ORDER BY r.created_at DESC LIMIT 20"""
+        ).fetchall()
+
+        top_rated = conn.execute(
+            """SELECT c.*, AVG(r.rating) as avg_rating, COUNT(r.id) as review_count
+               FROM cars c
+               JOIN reviews r ON r.car_id = c.id
+               GROUP BY c.id
+               HAVING review_count >= 1
+               ORDER BY avg_rating DESC LIMIT 5"""
+        ).fetchall()
+
+        wishlist_stats = conn.execute(
+            """SELECT c.id, c.make, c.model, COUNT(w.id) as wish_count
+               FROM cars c
+               JOIN wishlist w ON w.car_id = c.id
+               GROUP BY c.id
+               ORDER BY wish_count DESC LIMIT 5"""
+        ).fetchall()
+
+    return render_template(
+        "admin_dashboard.html",
+        total_cars=total_cars,
+        approved_cars=approved_cars,
+        hidden_cars=hidden_cars,
+        total_users=total_users,
+        admin_count=admin_count,
+        customer_count=customer_count,
+        total_reviews=total_reviews,
+        users=users,
+        recent_reviews=recent_reviews,
+        top_rated=top_rated,
+        wishlist_stats=wishlist_stats,
+    )
 
 
 if __name__ == "__main__":

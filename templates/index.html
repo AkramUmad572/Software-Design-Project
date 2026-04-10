@@ -307,6 +307,14 @@
         >
           {% if session.role == 'admin' %}Admin{% else %}Customer{% endif %}
         </span>
+        <a href="{{ url_for('view_wishlist') }}">
+          <button class="blend-btn">&#9825; Wishlist</button>
+        </a>
+        {% if session.role == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}">
+          <button class="blend-btn">Dashboard</button>
+        </a>
+        {% endif %}
         <a href="{{ url_for('list_cars') }}">
           <button class="blend-btn blend-btn-primary">View listings</button>
         </a>

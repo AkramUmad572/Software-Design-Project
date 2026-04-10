@@ -10,14 +10,15 @@
             background: radial-gradient(circle at top, #1e293b, #020617);
             color: #e5e7eb;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
+        }
+
+        .page-wrap {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
         }
 
         .shell {
-            margin-top: 40px;
-            width: 900px;
             background: rgba(15, 23, 42, 0.96);
             border-radius: 20px;
             border: 1px solid rgba(148, 163, 184, 0.35);
@@ -72,6 +73,9 @@
             font-size: 26px;
             font-weight: 700;
             color: #a5b4fc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .meta-grid {
@@ -161,64 +165,337 @@
             color: #f9fafb;
             box-shadow: 0 10px 24px rgba(37, 99, 235, 0.55);
         }
+
+        .btn-wishlist {
+            background: transparent;
+            border: 1px solid #475569;
+            color: #e5e7eb;
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-wishlist.active {
+            border-color: #f87171;
+            color: #f87171;
+        }
+
+        .rating-summary {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .stars { color: #fbbf24; letter-spacing: 2px; }
+
+        .rating-num { font-weight: 700; color: #fbbf24; }
+
+        .rating-count { color: #9ca3af; font-size: 12px; }
+
+        /* --- Reviews Section --- */
+        .reviews-section {
+            margin-top: 32px;
+            background: rgba(15, 23, 42, 0.96);
+            border-radius: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            padding: 28px;
+        }
+
+        .reviews-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .review-form {
+            background: rgba(2, 6, 23, 0.6);
+            border: 1px solid rgba(71, 85, 105, 0.6);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .review-form h3 {
+            margin: 0 0 12px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .star-input {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 12px;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+
+        .star-input input { display: none; }
+
+        .star-input label {
+            font-size: 28px;
+            color: #475569;
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+
+        .star-input label:hover,
+        .star-input label:hover ~ label,
+        .star-input input:checked ~ label {
+            color: #fbbf24;
+        }
+
+        .review-form textarea {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid rgba(71, 85, 105, 0.75);
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #e5e7eb;
+            outline: none;
+            font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 70px;
+            box-sizing: border-box;
+        }
+
+        .review-form textarea::placeholder { color: #94a3b8; }
+
+        .review-form .form-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .review-card {
+            background: rgba(2, 6, 23, 0.45);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .review-user {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .review-date {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .review-stars { color: #fbbf24; font-size: 14px; letter-spacing: 1px; }
+
+        .review-comment {
+            font-size: 13px;
+            color: #d1d5db;
+            line-height: 1.5;
+            margin-top: 6px;
+        }
+
+        .review-empty {
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            padding: 20px;
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 999px;
+            border: 1px solid #475569;
+            background: transparent;
+            color: #e5e7eb;
+            cursor: pointer;
+        }
+
+        .btn-sm.danger {
+            border-color: #f97373;
+            color: #fecaca;
+        }
+
+        .messages {
+            margin-bottom: 16px;
+        }
+
+        .message {
+            font-size: 13px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .message.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
     </style>
 </head>
 
 <body>
-    <div class="shell">
-        <div class="image-pane">
-            <div class="badge">Listing details</div>
-            <img src="{{ url_for('car_image', filename=(car.image_filename or 'toyota.jpg')) }}" alt="{{ car.make }} {{ car.model }}">
-        </div>
-        <div class="content">
-            <div class="title">{{ car.make }} {{ car.model }}</div>
-            <div class="subtitle">{{ car.year }}</div>
-
-            <div class="price-row">
-                ${{ "%.2f"|format(car.price) }}
-            </div>
-
-            <div class="meta-grid">
-                <div class="meta-item">
-                    <div class="meta-label">Make</div>
-                    <div class="meta-value">{{ car.make }}</div>
-                </div>
-                <div class="meta-item">
-                    <div class="meta-label">Model</div>
-                    <div class="meta-value">{{ car.model }}</div>
-                </div>
-                <div class="meta-item">
-                    <div class="meta-label">Year</div>
-                    <div class="meta-value">{{ car.year }}</div>
-                </div>
-                <div class="meta-item">
-                    <div class="meta-label">Price</div>
-                    <div class="meta-value">${{ "%.2f"|format(car.price) }}</div>
-                </div>
-            </div>
-
-            {% if car.description %}
-            <div class="description">
-                {{ car.description }}
-            </div>
+    <div class="page-wrap">
+        <div class="messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="message {{ category }}">{{ message }}</div>
+            {% endfor %}
             {% endif %}
+            {% endwith %}
+        </div>
 
-            <div class="footer-row">
-                <div class="footer-left">
-                    Viewing as
-                    <span class="role-pill {% if role == 'admin' %}admin{% endif %}">
-                        {% if role == 'admin' %}Admin{% else %}Customer{% endif %}
-                    </span>
+        <div class="shell">
+            <div class="image-pane">
+                <div class="badge">Listing details</div>
+                <img src="{{ url_for('car_image', filename=(car.image_filename or 'toyota.jpg')) }}" alt="{{ car.make }} {{ car.model }}">
+            </div>
+            <div class="content">
+                <div class="title">{{ car.make }} {{ car.model }}</div>
+                <div class="subtitle">{{ car.year }}</div>
+
+                <div class="price-row">
+                    <span>${{ "%.2f"|format(car.price) }}</span>
+                    <form action="{{ url_for('toggle_wishlist', car_id=car.id) }}" method="post" style="margin:0;">
+                        <input type="hidden" name="next" value="{{ url_for('car_detail', car_id=car.id) }}">
+                        <button type="submit" class="btn-wishlist {% if in_wishlist %}active{% endif %}">
+                            {% if in_wishlist %}&#9829; Wishlisted{% else %}&#9825; Add to Wishlist{% endif %}
+                        </button>
+                    </form>
                 </div>
-                <div class="buttons">
-                    <form action="{{ url_for('list_cars') }}" method="get">
-                        <button type="submit" class="btn btn-outline">Back to listings</button>
-                    </form>
-                    <form action="{{ url_for('home') }}" method="get">
-                        <button type="submit" class="btn btn-primary">Back to home</button>
-                    </form>
+
+                {% if avg_rating %}
+                <div class="rating-summary">
+                    <span class="rating-num">{{ avg_rating }}</span>
+                    <span class="stars">
+                        {% for i in range(1, 6) %}{% if avg_rating >= i %}&#9733;{% elif avg_rating >= i - 0.5 %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}
+                    </span>
+                    <span class="rating-count">({{ review_count }} review{{ 's' if review_count != 1 }})</span>
+                </div>
+                {% endif %}
+
+                <div class="meta-grid">
+                    <div class="meta-item">
+                        <div class="meta-label">Make</div>
+                        <div class="meta-value">{{ car.make }}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Model</div>
+                        <div class="meta-value">{{ car.model }}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Year</div>
+                        <div class="meta-value">{{ car.year }}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Price</div>
+                        <div class="meta-value">${{ "%.2f"|format(car.price) }}</div>
+                    </div>
+                </div>
+
+                {% if car.description %}
+                <div class="description">
+                    {{ car.description }}
+                </div>
+                {% endif %}
+
+                <div class="footer-row">
+                    <div class="footer-left">
+                        Viewing as
+                        <span class="role-pill {% if role == 'admin' %}admin{% endif %}">
+                            {% if role == 'admin' %}Admin{% else %}Customer{% endif %}
+                        </span>
+                    </div>
+                    <div class="buttons">
+                        <form action="{{ url_for('list_cars') }}" method="get">
+                            <button type="submit" class="btn btn-outline">Back to listings</button>
+                        </form>
+                        <form action="{{ url_for('home') }}" method="get">
+                            <button type="submit" class="btn btn-primary">Back to home</button>
+                        </form>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="reviews-section" id="reviews">
+            <div class="reviews-title">Customer Reviews ({{ review_count }})</div>
+
+            <form class="review-form" action="{{ url_for('submit_review', car_id=car.id) }}" method="post">
+                <h3>{% if edit_review %}Edit your review{% else %}Write a review{% endif %}</h3>
+                {% if edit_review %}
+                <input type="hidden" name="review_id" value="{{ edit_review.id }}">
+                {% endif %}
+                <div class="star-input">
+                    {% for i in [5,4,3,2,1] %}
+                    <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" {% if edit_review and edit_review.rating == i %}checked{% endif %}>
+                    <label for="star{{ i }}">&#9733;</label>
+                    {% endfor %}
+                </div>
+                <textarea name="comment" placeholder="Share your thoughts about this car...">{% if edit_review %}{{ edit_review.comment or '' }}{% endif %}</textarea>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">{% if edit_review %}Save Changes{% else %}Submit Review{% endif %}</button>
+                    {% if edit_review %}
+                    <a href="{{ url_for('car_detail', car_id=car.id) }}#reviews" class="btn btn-outline" style="text-decoration:none;display:inline-flex;align-items:center;">Cancel</a>
+                    {% endif %}
+                </div>
+            </form>
+
+            {% if reviews %}
+            {% for review in reviews %}
+            <div class="review-card">
+                <div class="review-header">
+                    <div>
+                        <span class="review-user">{{ review.username }}</span>
+                        <span class="review-stars" style="margin-left:8px;">
+                            {% for i in range(1, 6) %}{% if review.rating >= i %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}
+                        </span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span class="review-date">{{ review.created_at }}</span>
+                        {% if review.user_id == session.user_id %}
+                        <a class="btn-sm" href="{{ url_for('car_detail', car_id=car.id, edit_review=review.id) }}#reviews" style="text-decoration:none;">Edit</a>
+                        <form action="{{ url_for('delete_review', car_id=car.id) }}" method="post" style="margin:0;" onsubmit="return confirm('Delete your review?');">
+                            <input type="hidden" name="review_id" value="{{ review.id }}">
+                            <button type="submit" class="btn-sm danger">Delete</button>
+                        </form>
+                        {% elif role == 'admin' %}
+                        <form action="{{ url_for('delete_review', car_id=car.id) }}" method="post" style="margin:0;" onsubmit="return confirm('Delete this review?');">
+                            <input type="hidden" name="review_id" value="{{ review.id }}">
+                            <button type="submit" class="btn-sm danger">Remove</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if review.comment %}
+                <div class="review-comment">{{ review.comment }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="review-empty">No reviews yet. Be the first to review this car!</div>
+            {% endif %}
         </div>
     </div>
 </body>

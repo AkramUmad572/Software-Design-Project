@@ -241,6 +241,14 @@
                     <form action="{{ url_for('home') }}" method="get">
                         <button type="submit" class="btn btn-outline">Back to home</button>
                     </form>
+                    <a href="{{ url_for('view_wishlist') }}" style="text-decoration:none;">
+                        <button type="button" class="btn btn-outline">&#9825; Wishlist</button>
+                    </a>
+                    {% if role == 'admin' %}
+                    <a href="{{ url_for('admin_dashboard') }}" style="text-decoration:none;">
+                        <button type="button" class="btn btn-outline">Dashboard</button>
+                    </a>
+                    {% endif %}
                     <form action="{{ url_for('logout') }}" method="get">
                         <button type="submit" class="btn btn-outline">Log out</button>
                     </form>
@@ -287,7 +295,7 @@
 
         {% if cars %}
         <div class="grid">
-            {% for car in cars[:4] %}
+            {% for car in cars %}
             <div class="card">
                 <a href="{{ url_for('car_detail', car_id=car.id) }}">
                     <img src="{{ url_for('car_image', filename=(car.image_filename or 'toyota.jpg')) }}" style="width:100%;border-radius:12px;margin-bottom:8px;">
