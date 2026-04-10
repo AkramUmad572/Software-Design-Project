@@ -234,3 +234,130 @@ def test_wishlist_ob_customer_cannot_open_hidden_car_detail(app_with_temp_db, ca
     resp = customer.get(f"/cars/{car_id}", follow_redirects=True)
     assert resp.status_code == 200
     assert title not in resp.get_data(as_text=True)
+
+
+@pytest.mark.wishlist
+@pytest.mark.cb
+def test_wishlist_cb_toggle_requires_login(client, first_approved_car):
+    car_id, _model = first_approved_car
+    resp = client.post(f"/wishlist/toggle/{car_id}", data={"next": "/cars"}, follow_redirects=False)
+    assert resp.status_code in (302, 303)
+    assert "pythonlogin" in resp.headers.get("Location", "")
+
+
+@pytest.mark.wishlist
+@pytest.mark.cb
+def test_wishlist_cb_next_redirect_to_car_detail(logged_in_customer, first_approved_car):
+    car_id, _model = first_approved_car
+    resp = logged_in_customer.post(
+        f"/wishlist/toggle/{car_id}",
+        data={"next": f"/cars/{car_id}"},
+        follow_redirects=False,
+    )
+    assert resp.status_code in (302, 303)
+    assert resp.headers["Location"].rstrip("/").endswith(f"/cars/{car_id}")
+
+
+@pytest.mark.wishlist
+@pytest.mark.cb
+def test_wishlist_cb_page_shows_title_when_logged_in(logged_in_customer):
+    resp = logged_in_customer.get("/wishlist")
+    assert resp.status_code == 200
+    assert "My Wishlist" in resp.get_data(as_text=True)
+
+
+@pytest.mark.wishlist
+@pytest.mark.tb
+def test_wishlist_tb_two_users_wishlist_same_car(app_with_temp_db, main_module, car_on_first_catalog_page):
+    app, _main = app_with_temp_db
+    car_id, _title = car_on_first_catalog_page
+    from tests.helpers import login
+
+    a = app.test_client()
+    b = app.test_client()
+    login(a, "it_admin", "pw")
+    login(b, "it_customer", "pw")
+    a.post(f"/wishlist/toggle/{car_id}", data={"next": "/wishlist"}, follow_redirects=True)
+    b.post(f"/wishlist/toggle/{car_id}", data={"next": "/wishlist"}, follow_redirects=True)
+
+    with main_module.get_db() as conn:
+        n = conn.execute("SELECT COUNT(*) AS c FROM wishlist WHERE car_id = ?", (car_id,)).fetchone()["c"]
+    assert n == 2
+
+
+@pytest.mark.wishlist
+@pytest.mark.dashboard
+@pytest.mark.tb
+def test_wishlist_tb_aggregate_wishers_shown_on_dashboard(app_with_temp_db, main_module, car_on_first_catalog_page):
+    app, _main = app_with_temp_db
+    car_id, _title = car_on_first_catalog_page
+    from tests.helpers import login
+
+    a = app.test_client()
+    b = app.test_client()
+    login(a, "it_admin", "pw")
+    login(b, "it_customer", "pw")
+    a.post(f"/wishlist/toggle/{car_id}", data={"next": "/wishlist"}, follow_redirects=True)
+    b.post(f"/wishlist/toggle/{car_id}", data={"next": "/wishlist"}, follow_redirects=True)
+
+    admin = app.test_client()
+    login(admin, "it_admin", "pw")
+    page = admin.get("/admin/dashboard").get_data(as_text=True)
+    assert "2 users" in page
+
+
+@pytest.mark.wishlist
+@pytest.mark.tb
+def test_wishlist_tb_toggle_pair_restores_prior_count(logged_in_customer, first_approved_car, main_module):
+    car_id, _model = first_approved_car
+    before = _wishlist_count(main_module, "it_customer")
+    logged_in_customer.post(f"/wishlist/toggle/{car_id}", data={"next": "/cars"}, follow_redirects=True)
+    logged_in_customer.post(f"/wishlist/toggle/{car_id}", data={"next": "/cars"}, follow_redirects=True)
+    assert _wishlist_count(main_module, "it_customer") == before
+
+
+@pytest.mark.wishlist
+@pytest.mark.tb
+def test_wishlist_tb_empty_page_shows_zero_items_plural(logged_in_customer):
+    text = logged_in_customer.get("/wishlist").get_data(as_text=True)
+    assert "0 items" in text
+
+
+@pytest.mark.wishlist
+@pytest.mark.ob
+def test_wishlist_ob_added_flash_message(logged_in_customer, first_approved_car):
+    car_id, _model = first_approved_car
+    resp = logged_in_customer.post(
+        f"/wishlist/toggle/{car_id}",
+        data={"next": "/wishlist"},
+        follow_redirects=True,
+    )
+    assert "Added to your wishlist" in resp.get_data(as_text=True)
+
+
+@pytest.mark.wishlist
+@pytest.mark.ob
+def test_wishlist_ob_removed_flash_message(logged_in_customer, first_approved_car):
+    car_id, _model = first_approved_car
+    logged_in_customer.post(f"/wishlist/toggle/{car_id}", data={"next": "/wishlist"}, follow_redirects=True)
+    resp = logged_in_customer.post(
+        f"/wishlist/toggle/{car_id}",
+        data={"next": "/wishlist"},
+        follow_redirects=True,
+    )
+    assert "Removed from your wishlist" in resp.get_data(as_text=True)
+
+
+@pytest.mark.wishlist
+@pytest.mark.ob
+def test_wishlist_ob_detail_shows_add_when_not_saved(logged_in_customer, first_approved_car):
+    car_id, _model = first_approved_car
+    page = logged_in_customer.get(f"/cars/{car_id}")
+    assert "Add to Wishlist" in page.get_data(as_text=True)
+
+
+@pytest.mark.wishlist
+@pytest.mark.ob
+def test_wishlist_ob_empty_state_copy(logged_in_customer):
+    text = logged_in_customer.get("/wishlist").get_data(as_text=True)
+    assert "Your wishlist is empty" in text
