@@ -1,3 +1,5 @@
+"""Pytest fixtures: isolated SQLite DB, Flask client, and seeded it_admin / it_customer users."""
+
 import os
 import tempfile
 
@@ -77,10 +79,7 @@ def first_approved_car(main_module):
 
 @pytest.fixture
 def car_on_first_catalog_page(main_module):
-    """
-    Newest listing (highest id) appears in the first row of /cars because the
-    template orders by id desc and only shows cars[:4].
-    """
+    """Newest seeded car (highest id) — stable target for listing/detail/moderation tests."""
     with main_module.get_db() as conn:
         row = conn.execute(
             "SELECT id, make, model FROM cars ORDER BY id DESC LIMIT 1"

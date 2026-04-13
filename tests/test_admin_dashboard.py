@@ -359,3 +359,116 @@ def test_dashboard_ob_top_rated_table_headers(logged_in_admin, first_approved_ca
     page = logged_in_admin.get("/admin/dashboard").get_data(as_text=True)
     assert "Avg Rating" in page
     assert "Reviews" in page
+
+
+@pytest.mark.dashboard
+@pytest.mark.cb
+def test_dashboard_cb_customer_cannot_promote_user(app_with_temp_db, main_module):
+    app, _main = app_with_temp_db
+    from tests.helpers import login
+
+    with main_module.get_db() as conn:
+        cust_id = conn.execute(
+            "SELECT id FROM users WHERE username = ?", ("it_customer",)
+        ).fetchone()["id"]
+
+    customer = app.test_client()
+    login(customer, "it_customer", "pw")
+    resp = customer.post(
+        f"/admin/users/{cust_id}/promote",
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert "do not have permission" in resp.get_data(as_text=True).lower()
+    with main_module.get_db() as conn:
+        role = conn.execute(
+            "SELECT role FROM users WHERE id = ?", (cust_id,)
+        ).fetchone()["role"]
+    assert role == "customer"
+
+
+@pytest.mark.dashboard
+@pytest.mark.cb
+def test_dashboard_cb_admin_promote_customer_updates_role(logged_in_admin, main_module):
+    with main_module.get_db() as conn:
+        cust_id = conn.execute(
+            "SELECT id FROM users WHERE username = ?", ("it_customer",)
+        ).fetchone()["id"]
+    resp = logged_in_admin.post(
+        f"/admin/users/{cust_id}/promote",
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert "now an admin" in resp.get_data(as_text=True).lower()
+    with main_module.get_db() as conn:
+        role = conn.execute(
+            "SELECT role FROM users WHERE id = ?", (cust_id,)
+        ).fetchone()["role"]
+    assert role == "admin"
+
+
+@pytest.mark.dashboard
+@pytest.mark.cb
+def test_dashboard_cb_customer_cannot_demote_admin(app_with_temp_db, main_module):
+    app, _main = app_with_temp_db
+    from tests.helpers import login
+
+    with main_module.get_db() as conn:
+        admin_id = conn.execute(
+            "SELECT id FROM users WHERE username = ?", ("it_admin",)
+        ).fetchone()["id"]
+
+    customer = app.test_client()
+    login(customer, "it_customer", "pw")
+    resp = customer.post(
+        f"/admin/users/{admin_id}/demote",
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert "do not have permission" in resp.get_data(as_text=True).lower()
+    with main_module.get_db() as conn:
+        role = conn.execute(
+            "SELECT role FROM users WHERE id = ?", (admin_id,)
+        ).fetchone()["role"]
+    assert role == "admin"
+
+
+@pytest.mark.dashboard
+@pytest.mark.cb
+def test_dashboard_cb_admin_demote_admin_updates_role(logged_in_admin, main_module):
+    with main_module.get_db() as conn:
+        cust_id = conn.execute(
+            "SELECT id FROM users WHERE username = ?", ("it_customer",)
+        ).fetchone()["id"]
+    logged_in_admin.post(f"/admin/users/{cust_id}/promote", follow_redirects=True)
+    resp = logged_in_admin.post(
+        f"/admin/users/{cust_id}/demote",
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert "now a customer" in resp.get_data(as_text=True).lower()
+    with main_module.get_db() as conn:
+        role = conn.execute(
+            "SELECT role FROM users WHERE id = ?", (cust_id,)
+        ).fetchone()["role"]
+    assert role == "customer"
+
+
+@pytest.mark.dashboard
+@pytest.mark.cb
+def test_dashboard_cb_cannot_demote_only_admin(logged_in_admin, main_module):
+    with main_module.get_db() as conn:
+        admin_id = conn.execute(
+            "SELECT id FROM users WHERE username = ?", ("it_admin",)
+        ).fetchone()["id"]
+    resp = logged_in_admin.post(
+        f"/admin/users/{admin_id}/demote",
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert "at least one admin" in resp.get_data(as_text=True).lower()
+    with main_module.get_db() as conn:
+        role = conn.execute(
+            "SELECT role FROM users WHERE id = ?", (admin_id,)
+        ).fetchone()["role"]
+    assert role == "admin"

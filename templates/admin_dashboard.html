@@ -196,6 +196,60 @@
             padding: 24px;
             font-size: 13px;
         }
+
+        .btn-promote {
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 999px;
+            border: 1px solid #60a5fa;
+            background: rgba(37, 99, 235, 0.2);
+            color: #bfdbfe;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-promote:hover {
+            background: rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-demote {
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 999px;
+            border: 1px solid #f97373;
+            background: rgba(239, 68, 68, 0.12);
+            color: #fecaca;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        .btn-demote:hover {
+            background: rgba(239, 68, 68, 0.22);
+        }
+
+        .messages {
+            margin-bottom: 16px;
+        }
+
+        .message {
+            font-size: 13px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .message.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
     </style>
 </head>
 
@@ -217,6 +271,16 @@
                     </form>
                 </div>
             </div>
+        </div>
+
+        <div class="messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="message {{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
         </div>
 
         <!-- Stats Overview -->
@@ -311,12 +375,14 @@
         <!-- All Users -->
         <div class="panel">
             <div class="panel-title">All Users ({{ total_users }})</div>
+            <p class="text-muted" style="font-size:12px;margin:-8px 0 12px;">Promote customers to admin or demote admins to customer (regular users). At least one admin must remain. Actions only on this dashboard.</p>
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Username</th>
                         <th>Role</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -326,6 +392,21 @@
                         <td>{{ user.username }}</td>
                         <td>
                             <span class="role-badge {{ user.role }}">{{ user.role }}</span>
+                        </td>
+                        <td>
+                            {% if user.role == 'customer' %}
+                            <form action="{{ url_for('promote_user_to_admin', user_id=user.id) }}" method="post" style="margin:0;display:inline;" onsubmit="return confirm('Promote {{ user.username }} to admin?');">
+                                <button type="submit" class="btn-promote">Promote to admin</button>
+                            </form>
+                            {% elif user.role == 'admin' and admin_count > 1 %}
+                            <form action="{{ url_for('demote_admin_to_customer', user_id=user.id) }}" method="post" style="margin:0;display:inline;" onsubmit="return confirm('Demote {{ user.username }} to customer (regular user)?');">
+                                <button type="submit" class="btn-demote">Demote to customer</button>
+                            </form>
+                            {% elif user.role == 'admin' %}
+                            <span class="text-muted" title="Cannot remove the only admin">—</span>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

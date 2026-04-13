@@ -7,11 +7,9 @@ from flask import (
     session,
     flash,
     send_from_directory,
-    jsonify,
 )
 import os
 import sqlite3
-from datetime import datetime
 from functools import wraps
 
 app = Flask(__name__)
@@ -28,6 +26,7 @@ def get_db():
 
 
 def init_db():
+    """Create tables if needed, migrate older `cars` rows, seed demo listings when empty."""
     with get_db() as conn:
         conn.execute(
             """
@@ -80,7 +79,7 @@ def init_db():
             )
             """
         )
-        # For existing databases created before 'status' existed
+        # Older DBs may lack columns added after first deploy — add them without resetting data.
         cols = conn.execute("PRAGMA table_info(cars)").fetchall()
         col_names = {c["name"] for c in cols}
         if "status" not in col_names:
@@ -114,6 +113,8 @@ def car_image(filename):
 
 
 def login_required(view):
+    """Require a logged-in user; otherwise redirect to login with a flash."""
+
     @wraps(view)
     def wrapped_view(*args, **kwargs):
         if "user_id" not in session:
@@ -125,6 +126,8 @@ def login_required(view):
 
 
 def admin_required(view):
+    """Require login plus role admin; customers get bounced to the car list."""
+
     @wraps(view)
     def wrapped_view(*args, **kwargs):
         if "user_id" not in session:
@@ -409,6 +412,7 @@ def delete_car(car_id):
 @app.route("/cars/<int:car_id>/review", methods=["POST"])
 @login_required
 def submit_review(car_id):
+    """Create a review, or update if ``review_id`` is posted (admins: any review; customers: own only)."""
     rating_raw = (request.form.get("rating", "") or "").strip()
     comment = (request.form.get("comment", "") or "").strip()
     review_id_raw = (request.form.get("review_id", "") or "").strip()
@@ -424,7 +428,6 @@ def submit_review(car_id):
 
     with get_db() as conn:
         if review_id_raw:
-            # Edit an existing review (only owner; admin can edit too).
             if session.get("role") == "admin":
                 updated = conn.execute(
                     "UPDATE reviews SET rating = ?, comment = ?, created_at = datetime('now') WHERE id = ? AND car_id = ?",
@@ -442,7 +445,6 @@ def submit_review(car_id):
                 flash("Could not update that review.", "error")
             return redirect(url_for("car_detail", car_id=car_id))
 
-        # Otherwise create a new review (allows multiple per user).
         else:
             conn.execute(
                 "INSERT INTO reviews (car_id, user_id, rating, comment) VALUES (?, ?, ?, ?)",
@@ -457,6 +459,7 @@ def submit_review(car_id):
 @app.route("/cars/<int:car_id>/review/delete", methods=["POST"])
 @login_required
 def delete_review(car_id):
+    """Delete by ``review_id``; admins any review on this car, customers only their own."""
     with get_db() as conn:
         review_id_raw = (request.form.get("review_id") or "").strip()
         if not review_id_raw:
@@ -481,6 +484,7 @@ def delete_review(car_id):
 @app.route("/wishlist/toggle/<int:car_id>", methods=["POST"])
 @login_required
 def toggle_wishlist(car_id):
+    """Add or remove this car for the current user; optional form field ``next`` for redirect."""
     with get_db() as conn:
         existing = conn.execute(
             "SELECT id FROM wishlist WHERE user_id = ? AND car_id = ?",
@@ -518,6 +522,7 @@ def view_wishlist():
 @app.route("/admin/dashboard")
 @admin_required
 def admin_dashboard():
+    """Aggregate stats, user list, reviews, and ranking tables for admins only."""
     with get_db() as conn:
         total_cars = conn.execute("SELECT COUNT(*) as c FROM cars").fetchone()["c"]
         approved_cars = conn.execute(
@@ -580,6 +585,64 @@ def admin_dashboard():
         top_rated=top_rated,
         wishlist_stats=wishlist_stats,
     )
+
+
+@app.route("/admin/users/<int:user_id>/promote", methods=["POST"])
+@admin_required
+def promote_user_to_admin(user_id):
+    """Promote a customer to admin. Only reachable by admins; UI only on dashboard."""
+    if user_id == session.get("user_id"):
+        flash("You are already an admin.", "error")
+        return redirect(url_for("admin_dashboard"))
+
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT id, username, role FROM users WHERE id = ?", (user_id,)
+        ).fetchone()
+        if not row:
+            flash("User not found.", "error")
+            return redirect(url_for("admin_dashboard"))
+        if row["role"] != "customer":
+            flash("Only customer accounts can be promoted to admin.", "error")
+            return redirect(url_for("admin_dashboard"))
+        conn.execute(
+            "UPDATE users SET role = 'admin' WHERE id = ? AND role = 'customer'",
+            (user_id,),
+        )
+        conn.commit()
+    flash(f"{row['username']} is now an admin.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+
+@app.route("/admin/users/<int:user_id>/demote", methods=["POST"])
+@admin_required
+def demote_admin_to_customer(user_id):
+    """Demote an admin to customer. Only reachable by admins; UI only on dashboard."""
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT id, username, role FROM users WHERE id = ?", (user_id,)
+        ).fetchone()
+        if not row:
+            flash("User not found.", "error")
+            return redirect(url_for("admin_dashboard"))
+        if row["role"] != "admin":
+            flash("Only admin accounts can be demoted to customer.", "error")
+            return redirect(url_for("admin_dashboard"))
+
+        admin_total = conn.execute(
+            "SELECT COUNT(*) AS c FROM users WHERE role = 'admin'"
+        ).fetchone()["c"]
+        if admin_total <= 1:
+            flash("There must be at least one admin. Cannot demote the only admin.", "error")
+            return redirect(url_for("admin_dashboard"))
+
+        conn.execute(
+            "UPDATE users SET role = 'customer' WHERE id = ? AND role = 'admin'",
+            (user_id,),
+        )
+        conn.commit()
+    flash(f"{row['username']} is now a customer.", "success")
+    return redirect(url_for("admin_dashboard"))
 
 
 if __name__ == "__main__":
