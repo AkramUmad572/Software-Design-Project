@@ -13,7 +13,8 @@ import sqlite3
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = "change-this-secret-key"
+# Use environment override in production (Render), fallback for local dev.
+app.secret_key = os.environ.get("SECRET_KEY", "change-this-secret-key")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
@@ -23,6 +24,20 @@ def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+# Gunicorn/Render imports the module but doesn't run the __main__ block.
+# Ensure the schema exists before the first request.
+_db_initialized = False
+
+
+@app.before_request
+def _ensure_db_initialized():
+    global _db_initialized
+    if _db_initialized:
+        return
+    init_db()
+    _db_initialized = True
 
 
 def init_db():
