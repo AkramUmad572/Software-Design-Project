@@ -1,7 +1,7 @@
 # MotorMatch
 
 CSCI 2040U – Software Design and Analysis  
-Team: Qudsia Fawad, Andy, Emma, Umad, Adebayo
+Team: Qudsia, Andy, Emma, Umad, Adebayo
 
 ---
 
