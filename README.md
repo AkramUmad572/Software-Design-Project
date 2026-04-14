@@ -77,5 +77,5 @@ The project is organized into components that handle different responsibilities:
 
 ## User Documentation
 
-- Use the demo below as reference. 
+- Use the demo below as a reference. <br>
 https://drive.google.com/file/d/1eQTNhCsAoVl3WiIbzU_dZQ_yBmGQV-Kt/view?usp=sharing
